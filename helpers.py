@@ -44,16 +44,4 @@ def generate_payload_order(generate_random_string, generate_random_phone, genera
                 "color": color
             }
     return payload
-@pytest.fixture
-def create_courier(login = None , password = None, first_name = None):
-    payload = {}
-    payload['login'] = login
-    payload['password'] = password
-    payload['firstName'] = first_name
-    return requests.post(URL+'/api/v1/courier',json=payload)
-@pytest.fixture
-def login_courier(login = None , password = None):
-    payload = {}
-    payload['login'] = login
-    payload['password'] = password
-    return requests.post(URL+'/api/v1/courier/login',json=payload)
+

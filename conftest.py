@@ -19,6 +19,21 @@ def register_new_courier_and_return_login_password(generate_random_string):
 
 
     return payload
+
+@pytest.fixture
+def create_courier(login = None , password = None, first_name = None):
+    payload = {}
+    payload['login'] = login
+    payload['password'] = password
+    payload['firstName'] = first_name
+    return requests.post(URL+'/api/v1/courier',json=payload)
+@pytest.fixture
+def login_courier(login = None , password = None):
+    payload = {}
+    payload['login'] = login
+    payload['password'] = password
+    return requests.post(URL+'/api/v1/courier/login',json=payload)
+
 @pytest.fixture
 def generate_random_order(generate_payload_order,color = None):
     return requests.post(URL + '/api/v1/orders',
@@ -29,4 +44,3 @@ def accept_order(track, courierId):
 @pytest.fixture
 def list_order(courierId):
     return requests.get(URL + f'/v1/orders?courierId={courierId}')
-

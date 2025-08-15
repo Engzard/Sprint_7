@@ -21,4 +21,4 @@ class TestOrderList:
         with allure.step(f"Получение списка заказов"):
             response = list_order(courierId)
         with allure.step("Проверка кода ответа"):
-            assert response.status_code == 200
+            assert response.status_code == 200 and "orders" in response.json

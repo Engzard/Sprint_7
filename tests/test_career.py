@@ -28,8 +28,8 @@ class TestOrder:
         first_name = generate_random_string(10)
         with allure.step (f"Отправка POST-запроса на создание курьера"):
             response = create_courier(None,password, first_name)
-        with allure.step("Проверка кода ответа"):
-            assert (response.status_code == 400)
+        with allure.step("Проверка кода ответа и тела JSON"):
+            assert (response.status_code == 400) and "Недостаточно данных для создания учетной записи" in response.json
 
     @allure.title('Создание курьера без пароля')
     def test_career_creation_without_password_return_400(self, generate_random_string, create_courier):
@@ -37,5 +37,5 @@ class TestOrder:
         first_name = generate_random_string(10)
         with allure.step (f"Отправка POST-запроса на создание курьера"):
             response = create_courier(login, None, first_name)
-        with allure.step("Проверка кода ответа"):
-            assert (response.status_code == 400)
+        with allure.step("Проверка кода ответа и тела JSON"):
+            assert (response.status_code == 400) and "Недостаточно данных для создания учетной записи" in response.json
