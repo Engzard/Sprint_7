@@ -1,93 +1,55 @@
 import allure
-import requests
+from helpers import create_courier, login_courier
 
 
-URL = 'https://qa-scooter.praktikum-services.ru'
-@allure.step("Авторизация курьера в системе")
-def career_log_in_200(generate_random_string):
-    login = generate_random_string(10)
-    password = generate_random_string(10)
-    response = requests.post(URL + '/api/v1/courier',
-                             json={
-                                 "login": login,
-                                 "password": password
-                             }
-                             )
-    if response.status_code == 201:
-        response = requests.post(URL + '/api/v1/courier/login',
-                                 json={
-                                     "login": login,
-                                     "password": password
-                                 }
-                                 )
-    assert response.status_code == 200 and "id" in response.json()
-@allure.step("Авторизация курьера в системе без логина")
-def career_log_in_without_login_400(generate_random_string):
-    login = generate_random_string(10)
-    password = generate_random_string(10)
-    response = requests.post(URL + '/api/v1/courier',
-                             json={
-                                 "login": login,
-                                 "password": password
-                             }
-                             )
-    if response.status_code == 201:
-        response = requests.post(URL + '/api/v1/courier/login',
-                                 json={
-                                     "password": password
-                                 }
-                                 )
-    assert response.status_code == 400
-@allure.step("Авторизация курьера в системе без пароля")
-def career_log_in_without_password_400(generate_random_string):
-    login = generate_random_string(10)
-    password = generate_random_string(10)
-    response = requests.post(URL + '/api/v1/courier',
-                             json={
-                                 "login": login,
-                                 "password": password
-                             }
-                             )
-    if response.status_code == 201:
-        response = requests.post(URL + '/api/v1/courier/login',
-                                 json={
-                                     "login": login
-                                 }
-                                 )
-    assert response.status_code == 400
-@allure.step("Авторизация курьера в системе с неверным паролем")
-def career_log_in_wrong_password_404(generate_random_string):
-    login = generate_random_string(10)
-    password = generate_random_string(10)
-    response = requests.post(URL + '/api/v1/courier',
-                             json={
-                                 "login": login,
-                                 "password": password
-                             }
-                             )
-    if response.status_code == 201:
-        response = requests.post(URL + '/api/v1/courier/login',
-                                 json={
-                                     "login": login,
-                                     "password": password+'1'
-                                 }
-                                 )
-    assert response.status_code == 404 and response.json().get("message") == "Учетная запись не найдена"
-@allure.step("Авторизация курьера в системе с неверным логином")
-def career_log_in_wrong_login_404(generate_random_string):
-    login = generate_random_string(10)
-    password = generate_random_string(10)
-    response = requests.post(URL + '/api/v1/courier',
-                             json={
-                                 "login": login,
-                                 "password": password
-                             }
-                             )
-    if response.status_code == 201:
-        response = requests.post(URL + '/api/v1/courier/login',
-                                 json={
-                                     "login": login+'1',
-                                     "password": password
-                                 }
-                                 )
-    assert response.status_code == 404 and response.json().get("message") == "Учетная запись не найдена"
+class TestAccount:
+    @allure.title("Авторизация курьера в системе")
+    def test_career_log_in_200(self, generate_random_string, create_courier, login_courier):
+        login = generate_random_string(10)
+        password = generate_random_string(10)
+        with allure.step(f"Отправка POST-запроса на создание курьера"):
+            response = create_courier(login, password)
+        with allure.step(f"Отправка POST-запроса на авторизацию курьера"):
+            response = login_courier(login, password)
+        with allure.step("Проверка кода ответа и тела JSON"):
+            assert response.status_code == 200 and "id" in response.json()
+    @allure.title("Авторизация курьера в системе без логина")
+    def test_career_log_in_without_login_400(self, generate_random_string, create_courier, login_courier):
+        login = generate_random_string(10)
+        password = generate_random_string(10)
+        with allure.step(f"Отправка POST-запроса на создание курьера"):
+            response = create_courier(login, password)
+        with allure.step(f"Отправка POST-запроса на авторизацию курьера"):
+            response = login_courier(None, password)
+        with allure.step("Проверка кода ответа"):
+            assert response.status_code == 400
+    @allure.title("Авторизация курьера в системе без пароля")
+    def test_career_log_in_without_password_400(self, generate_random_string, create_courier, login_courier):
+        login = generate_random_string(10)
+        password = generate_random_string(10)
+        with allure.step(f"Отправка POST-запроса на создание курьера"):
+            response = create_courier(login, password)
+        with allure.step(f"Отправка POST-запроса на авторизацию курьера"):
+            response = login_courier(login)
+        with allure.step("Проверка кода ответа"):
+            assert response.status_code == 400
+    @allure.title("Авторизация курьера в системе с неверным паролем")
+    def test_career_log_in_wrong_password_404(self, generate_random_string, create_courier, login_courier):
+        login = generate_random_string(10)
+        password = generate_random_string(10)
+        with allure.step(f"Отправка POST-запроса на создание курьера"):
+            response = create_courier(login, password)
+        with allure.step(f"Отправка POST-запроса на авторизацию курьера"):
+            response = login_courier(login, password+'1')
+        with allure.step("Проверка кода ответа и тела JSON"):
+            assert response.status_code == 404 and response.json().get("message") == "Учетная запись не найдена"
+    @allure.title("Авторизация курьера в системе с неверным логином")
+    def test_career_log_in_wrong_login_404(self, generate_random_string, create_courier, login_courier):
+        login = generate_random_string(10)
+        password = generate_random_string(10)
+        with allure.step(f"Отправка POST-запроса на создание курьера"):
+            response = create_courier(login, password)
+        with allure.step(f"Отправка POST-запроса на авторизацию курьера"):
+            response = login_courier(login+'1', password)
+        with allure.step("Проверка кода ответа и тела JSON"):
+            assert response.status_code == 404 and response.json().get("message") == "Учетная запись не найдена"
